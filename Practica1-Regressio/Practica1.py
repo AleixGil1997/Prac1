@@ -30,6 +30,7 @@ yy = []
 
 noZero = y.nonzero()
 
+#Descartem els valors per sobre de 500 ha (outliers)
 for i in range(len(x)):
     if y[i] < 500:
         xx.append(x[i])
@@ -53,44 +54,7 @@ print("Per veure estadístiques dels atributs numèrics de la BBDD:")
 dataset.describe()
 
 
-plt.figure()
-plt.title("FFMC")
-ax = plt.scatter(x[:,0], y)
-
-plt.figure()
-plt.title("DMC")
-ax = plt.scatter(x[:,1], y)
-
-plt.figure()
-plt.title("DC")
-ax = plt.scatter(x[:,2], y)
-
-plt.figure()
-plt.title("ISI")
-ax = plt.scatter(x[:,3], y)
-
-plt.figure()
-plt.title("Temperatura")
-ax = plt.scatter(x[:,4], y)
-
-plt.figure()
-plt.title("Humitat")
-ax = plt.scatter(x[:,5], y)
-
-plt.figure()
-plt.title("Vent")
-ax = plt.scatter(x[:,6], y)
-
-plt.figure()
-plt.title("Pluja")
-ax = plt.scatter(x[:,7], y)
-
-
-plt.figure()
-plt.title("Histograma de l'atribut 0")
-plt.xlabel("Attribute Value")
-plt.ylabel("Count")
-hist = plt.hist(x[:,0], bins=11, range=[np.min(x[:,0]), np.max(x[:,0])], histtype="bar", rwidth=0.8)
+atributs=['FFMC', 'DMC', 'DC', 'ISI', 'temp', 'RH', 'wind', 'rain', 'area']
 
 
 # Mirem la correlació entre els atributs d'entrada per entendre millor les dades
@@ -104,9 +68,7 @@ ax = sns.heatmap(correlacio, annot=True, linewidths=.5)
 # Mirem la relació entre atributs utilitzant la funció pairplot
 relacio = sns.pairplot(dataset)
 
-
-atributs=['FFMC', 'DMC', 'DC', 'ISI', 'temp', 'RH', 'wind', 'rain', 'area']
-  
+#Mirem si algun atribut té distribució normal
 for i in range(9):
     plt.figure()
     plt.title(atributs[i])
@@ -175,35 +137,21 @@ def standarize(x_train):
     x_t /= std[None, :]
     return x_t
 
+#Variable x normalitzada
 x_t = standarize(x.astype('int'))
 
 
-plt.figure()
-plt.title("Temperatura")
-plt.xlabel("Attribute Value")
-plt.ylabel("Count")
-hist = plt.hist(x_t[:,4], bins=11, range=[np.min(x_t[:,4]), np.max(x_t[:,4])], histtype="bar", rwidth=0.8)
-
-
-plt.figure()
-plt.title("Temperatura")
-plt.xlabel("Attribute Value")
-plt.ylabel("Count")
-hist = plt.hist(x[:,4], bins=11, range=[np.min(x[:,4]), np.max(x[:,4])], histtype="bar", rwidth=0.8)
-
-
+#Mostrem el MSE i el R2 score de tots els atributs
 for i in range(len(x[0])):
-    # Extraiem el primer atribut de x i canviem la mida a #exemples, #dimensions de l'atribut.
-    # En el vostre cas, haureu de triar un atribut com a y, i utilitzar la resta com a x.
-    atribut1 = x[:,i].reshape(x.shape[0], 1)
-    regr = regression(atribut1, y)
-    predicted = regr.predict(atribut1)
+    atribut = x[:,i].reshape(x.shape[0], 1)
+    regr = regression(atribut, y)
+    predicted = regr.predict(atribut)
 
-    # Mostrem la predicció del model entrenat en color vermell a la Figura anterior 1
+    # Mostrem la predicció del model entrenat en color vermell a la Figura anterior
     plt.figure()
     plt.title(atributs[i])
     ax = plt.scatter(x[:,i], y)
-    plt.plot(atribut1[:,0], predicted, 'r')
+    plt.plot(atribut[:,0], predicted, 'r')
 
     # Mostrem l'error (MSE i R2)
     MSE = mse(y, predicted)
